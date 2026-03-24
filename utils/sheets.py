@@ -20,13 +20,18 @@ DEFAULT_FEES = [
 ]
 
 
-@st.cache_resource(show_spinner=False)
+_client = None  # module-level singleton — avoids ScriptRunContext warning from @st.cache_resource
+
+
 def get_client():
-    """Return an authenticated gspread client (cached across sessions)."""
-    creds_info = st.secrets["gcp_service_account"]
-    creds = Credentials.from_service_account_info(dict(creds_info), scopes=SCOPES)
-    # gspread v6+ uses gspread.Client(auth=creds) — gspread.authorize() was removed
-    return gspread.Client(auth=creds)
+    """Return an authenticated gspread client (one per process, lazily created)."""
+    global _client
+    if _client is None:
+        creds_info = st.secrets["gcp_service_account"]
+        creds = Credentials.from_service_account_info(dict(creds_info), scopes=SCOPES)
+        # gspread v6+ uses gspread.Client(auth=creds) — gspread.authorize() was removed
+        _client = gspread.Client(auth=creds)
+    return _client
 
 
 def get_spreadsheet():

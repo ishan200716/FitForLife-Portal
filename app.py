@@ -628,7 +628,6 @@ def page_admin():
                                 "Total_Paid": new_paid, "Status": new_status,
                             })
                             st.success(f"✅ Member **{new_name}** updated successfully!")
-                            st.cache_resource.clear()
                             st.rerun()
 
                 st.markdown("---")
@@ -642,7 +641,6 @@ def page_admin():
                         if row_idx != -1:
                             update_member(row_idx, {"Status": "Expired"})
                             st.success("Member marked as Expired.")
-                            st.cache_resource.clear()
                             st.rerun()
                 with col_d2:
                     if st.button("🗑️ Delete Permanently", use_container_width=True):
@@ -650,7 +648,6 @@ def page_admin():
                         if row_idx != -1:
                             delete_member(row_idx)
                             st.success("Member deleted.")
-                            st.cache_resource.clear()
                             st.rerun()
 
     # ── Tab 3: Add Member ──────────────────────────────────────────────────
@@ -691,7 +688,6 @@ def page_admin():
                         "Status": a_status,
                     })
                     st.success(f"🎉 Member **{a_name}** added with ID **{new_id}**!")
-                    st.cache_resource.clear()
 
     # ── Tab 4: Edit Fees ───────────────────────────────────────────────────
     with tab_fees:
@@ -742,7 +738,6 @@ def page_admin():
                             "Total": new_total,
                         })
                         st.success(f"✅ {plan_name} plan updated! New total: ₹{new_total:,}")
-                        st.cache_resource.clear()
                         st.rerun()
 
 # ══════════════════════════════════════════════════════════════════════════════
