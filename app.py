@@ -11,6 +11,7 @@ from datetime import datetime, date, timedelta
 from PIL import Image
 
 from utils.sheets import (
+    init_client,
     find_member_by_phone, get_members_df, add_member,
     update_member, delete_member, get_member_row_index,
     get_fees_df, update_fees_row, seed_fees_sheet,
@@ -25,6 +26,10 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="collapsed",
 )
+
+# Initialise the Google Sheets client once, inside the Streamlit script context
+# (so st.secrets is available and no ScriptRunContext warning is raised)
+init_client(st.secrets["gcp_service_account"])
 
 # ── Global CSS ────────────────────────────────────────────────────────────────
 st.markdown("""

@@ -1,7 +1,6 @@
 import gspread
 from google.oauth2.service_account import Credentials
 import pandas as pd
-import streamlit as st
 
 SCOPES = [
     "https://spreadsheets.google.com/feeds",
@@ -19,19 +18,25 @@ DEFAULT_FEES = [
     {"Plan": "Platinum", "Duration": "1 Year",    "Admission_Fees": 0,    "Monthly_Rate": 500, "Months": 12, "Total": 6000},
 ]
 
+_client = None  # module-level singleton
 
-_client = None  # module-level singleton — avoids ScriptRunContext warning from @st.cache_resource
+
+def init_client(creds_info: dict):
+    """
+    Initialize the gspread client once, called from app.py where st.secrets is available.
+    sheets.py intentionally does NOT import streamlit to avoid ScriptRunContext warnings.
+    """
+    global _client
+    if _client is None:
+        creds = Credentials.from_service_account_info(dict(creds_info), scopes=SCOPES)
+        _client = gspread.Client(auth=creds)
 
 
 def get_client():
-    """Return an authenticated gspread client (one per process, lazily created)."""
-    global _client
     if _client is None:
-        creds_info = st.secrets["gcp_service_account"]
-        creds = Credentials.from_service_account_info(dict(creds_info), scopes=SCOPES)
-        # gspread v6+ uses gspread.Client(auth=creds) — gspread.authorize() was removed
-        _client = gspread.Client(auth=creds)
+        raise RuntimeError("sheets.init_client() must be called before using the sheet functions.")
     return _client
+
 
 
 def get_spreadsheet():
