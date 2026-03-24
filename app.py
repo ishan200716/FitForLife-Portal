@@ -5,6 +5,17 @@ Member login + Admin dashboard backed by Google Sheets.
 """
 
 import os
+import sys
+
+# ── Bootstrapper for bare execution ───────────────────────────────────────────
+# If the user runs `python app.py` directly, streamlit runtime isn't active,
+# which causes the "missing ScriptRunContext" warnings. We intercept this and
+# launch Streamlit properly for them.
+import streamlit.runtime as st_runtime
+if not st_runtime.exists():
+    print("Launching Streamlit...")
+    os.execv(sys.executable, [sys.executable, "-m", "streamlit", "run", __file__])
+
 import streamlit as st
 import pandas as pd
 from datetime import datetime, date, timedelta
