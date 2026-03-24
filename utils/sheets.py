@@ -2,14 +2,6 @@ import gspread
 from google.oauth2.service_account import Credentials
 import pandas as pd
 import streamlit as st
-import os
-
-# Path to credentials JSON
-CREDS_PATH = os.path.join(
-    os.path.dirname(os.path.dirname(__file__)),
-    "Confidential Files",
-    "fitforlifegym-4e763a4acd58.json"
-)
 
 SCOPES = [
     "https://spreadsheets.google.com/feeds",
@@ -31,10 +23,10 @@ DEFAULT_FEES = [
 @st.cache_resource(show_spinner=False)
 def get_client():
     """Return an authenticated gspread client (cached across sessions)."""
-    # This looks at the secure "Secrets" you pasted into Streamlit
     creds_info = st.secrets["gcp_service_account"]
-    creds = Credentials.from_service_account_info(creds_info, scopes=SCOPES)
-    return gspread.authorize(creds)
+    creds = Credentials.from_service_account_info(dict(creds_info), scopes=SCOPES)
+    # gspread v6+ uses gspread.Client(auth=creds) — gspread.authorize() was removed
+    return gspread.Client(auth=creds)
 
 
 def get_spreadsheet():
@@ -70,9 +62,13 @@ def find_member_by_phone(phone: str) -> dict | None:
 
 def add_member(row: dict):
     ws = get_members_sheet()
-    # Auto-generate ID
+    # Auto-generate ID — use to_numeric to safely handle empty sheets or string IDs
     df = get_members_df()
-    new_id = int(df["ID"].max()) + 1 if not df.empty and "ID" in df.columns else 1
+    if not df.empty and "ID" in df.columns:
+        max_id = pd.to_numeric(df["ID"], errors="coerce").max()
+        new_id = int(max_id) + 1 if not pd.isna(max_id) else 1
+    else:
+        new_id = 1
     row["ID"] = new_id
     ws.append_row([
         row.get("ID"), row.get("Name"), row.get("Phone"), row.get("Email", ""),
