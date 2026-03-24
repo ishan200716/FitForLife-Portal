@@ -1,0 +1,3 @@
+gym-portal-manager@fitforlifegym.iam.gserviceaccount.com
+
+The app opens at: **http://localhost:8501**
