@@ -31,7 +31,9 @@ DEFAULT_FEES = [
 @st.cache_resource(show_spinner=False)
 def get_client():
     """Return an authenticated gspread client (cached across sessions)."""
-    creds = Credentials.from_service_account_file(CREDS_PATH, scopes=SCOPES)
+    # This looks at the secure "Secrets" you pasted into Streamlit
+    creds_info = st.secrets["gcp_service_account"]
+    creds = Credentials.from_service_account_info(creds_info, scopes=SCOPES)
     return gspread.authorize(creds)
 
 
